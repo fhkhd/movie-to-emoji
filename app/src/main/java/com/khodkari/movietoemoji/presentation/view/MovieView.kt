@@ -3,30 +3,30 @@ package com.khodkari.movietoemoji.presentation.view
 import android.content.Context
 import android.graphics.Color.parseColor
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.khodkari.movietoemoji.R
 import com.khodkari.movietoemoji.presentation.model.MovieViewEffect
 import com.khodkari.movietoemoji.presentation.model.MovieViewEvent
 import com.khodkari.movietoemoji.presentation.viewmodel.MovieViewModel
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 
 @Composable
 fun MovieView(
-    viewModel: MovieViewModel,
-    context: Context,
+    viewModel: MovieViewModel
 ) {
     var title by remember {
         mutableStateOf("")
@@ -34,8 +34,9 @@ fun MovieView(
     val state by remember { mutableStateOf(viewModel.state.value) }
     var loading by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
-    LoadingIndicator(visible = loading)
+    val context = LocalContext.current
 
+    LoadingIndicator(visible = loading)
 
     Image(
         painter = painterResource(R.drawable.background),
@@ -68,7 +69,7 @@ fun MovieView(
                     disabledBorderColor = MaterialTheme.colors.secondary,
                     cursorColor = MaterialTheme.colors.primaryVariant,
                     textColor = MaterialTheme.colors.primaryVariant,
-                    trailingIconColor = MaterialTheme.colors.primaryVariant,
+                    trailingIconColor = MaterialTheme.colors.primaryVariant
                 ),
                 label = {
                     Text(
@@ -102,13 +103,10 @@ fun MovieView(
                                 }
                                 is MovieViewEffect.ShowLoading -> loading = true
                                 is MovieViewEffect.HideLoading -> loading = false
-
                                 is MovieViewEffect.ShowMovieEmoji -> {
                                     state.movieEmoji = effect.emoji
                                 }
-                                is MovieViewEffect.Idle -> {
-                                    // Handle idle state
-                                }
+                                is MovieViewEffect.Idle -> loading = false
                             }
                         }
                     }
