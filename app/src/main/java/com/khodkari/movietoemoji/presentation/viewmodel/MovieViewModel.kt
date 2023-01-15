@@ -29,7 +29,10 @@ class MovieViewModel @Inject constructor(
                         isLoading = true
                     )
                     val title = state.value.movieTitle
-                    if (title.isNotEmpty()) {
+                    if (title.isEmpty()) {
+                        effect.value = MovieViewEffect.ShowTitleEmptyError("Enter a movie name!")
+                        state.value = MovieViewState(DataState.Failure("Something was wrong!"))
+                    } else {
                         val movie = Movie(title = event.title)
                         getEmojiUseCase(movie).collectLatest {
                             when (it) {
@@ -47,9 +50,6 @@ class MovieViewModel @Inject constructor(
                                 }
                             }
                         }
-                    } else {
-                        effect.value = MovieViewEffect.ShowTitleEmptyError("Enter a movie name!")
-                        state.value = MovieViewState(DataState.Failure("Something was wrong!"))
                     }
                 }
             }
