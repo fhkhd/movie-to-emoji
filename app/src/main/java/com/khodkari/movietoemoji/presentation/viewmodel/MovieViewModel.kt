@@ -8,7 +8,8 @@ import com.khodkari.movietoemoji.domain.usecase.GetEmojiUseCase
 import com.khodkari.movietoemoji.presentation.model.MovieViewEffect
 import com.khodkari.movietoemoji.presentation.model.MovieViewEvent
 import com.khodkari.movietoemoji.presentation.model.MovieViewState
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,7 +24,6 @@ class MovieViewModel @Inject constructor(
         when (event) {
             is MovieViewEvent.SubmitMovieTitle -> {
                 viewModelScope.launch {
-                    effect.value = MovieViewEffect.ShowLoading
                     state.value = state.value.copy(
                         movieTitle = event.title,
                         isLoading = true
@@ -35,13 +35,10 @@ class MovieViewModel @Inject constructor(
                             when (it) {
                                 is DataState.Success -> {
                                     state.value = MovieViewState(it)
-                                    state.value.movieEmoji = it.data.emoji
                                     state.value = state.value.copy(
                                         movieEmoji = it.data.emoji,
                                         isLoading = false
                                     )
-                                    effect.value =
-                                        MovieViewEffect.ShowMovieEmoji(state.value.movieEmoji)
                                 }
                                 is DataState.Failure -> {
                                     effect.value =

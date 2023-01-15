@@ -101,12 +101,7 @@ fun MovieView(
                                 is MovieViewEffect.ShowTitleEmptyError -> {
                                     makeToast(context, effect.error)
                                 }
-                                is MovieViewEffect.ShowLoading -> loading = true
-                                is MovieViewEffect.HideLoading -> loading = false
-                                is MovieViewEffect.ShowMovieEmoji -> {
-                                    state.movieEmoji = effect.emoji
-                                }
-                                is MovieViewEffect.Idle -> loading = false
+                                MovieViewEffect.Idle -> {}
                             }
                         }
                     }
@@ -127,9 +122,9 @@ fun MovieView(
             } else if (state.movieEmoji.isNotEmpty()) {
                 Text(
                     modifier = Modifier.padding(top = 50.dp),
-                    text = state.movieEmoji ,
+                    text = state.movieEmoji,
                     style = TextStyle(
-                        fontSize = 30.sp ,
+                        fontSize = 30.sp,
                         color = MaterialTheme.colors.secondary
                     )
                 )
