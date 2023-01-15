@@ -48,8 +48,8 @@ class MovieViewModel @Inject constructor(
                             }
                         }
                     } else {
-                        effect.value = MovieViewEffect.ShowTitleEmptyError("give me a title!")
-                        state.value = MovieViewState(DataState.Failure("give me a title!"))
+                        effect.value = MovieViewEffect.ShowTitleEmptyError("Enter a movie name!")
+                        state.value = MovieViewState(DataState.Failure("Something was wrong!"))
                     }
                 }
             }

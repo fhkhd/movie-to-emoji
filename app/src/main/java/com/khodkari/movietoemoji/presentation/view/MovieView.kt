@@ -32,11 +32,8 @@ fun MovieView(
         mutableStateOf("")
     }
     val state by remember { mutableStateOf(viewModel.state.value) }
-    var loading by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
-
-    LoadingIndicator(visible = loading)
 
     Image(
         painter = painterResource(R.drawable.background),
@@ -117,9 +114,10 @@ fun MovieView(
                     modifier = Modifier.padding(5.dp)
                 )
             }
-            if (state.isLoading) {
-                LoadingIndicator(visible = loading)
-            } else if (state.movieEmoji.isNotEmpty()) {
+
+            LoadingIndicator(visible = state.isLoading)
+
+            if (state.movieEmoji.isNotEmpty()) {
                 Text(
                     modifier = Modifier.padding(top = 50.dp),
                     text = state.movieEmoji,
