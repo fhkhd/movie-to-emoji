@@ -15,8 +15,10 @@ class GetEmojiUseCase @Inject constructor(
         repository.getMovieEmoji(movie).collectLatest {
             if (it is DataState.Failure) {
                 trySend(it)
+                close()
             } else if (it is DataState.Success) {
                 trySend(DataState.Success(it.data))
+                close()
             }
         }
         awaitClose()
