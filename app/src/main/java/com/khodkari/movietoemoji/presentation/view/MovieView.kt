@@ -104,7 +104,7 @@ fun MovieView(
                                 is MovieViewEffect.HideLoading -> loading = false
 
                                 is MovieViewEffect.ShowMovieEmoji -> {
-                                    // Show the movie emoji
+                                    state.movieEmoji = effect.emoji
                                 }
                                 is MovieViewEffect.Idle -> {
                                     // Handle idle state
@@ -125,13 +125,14 @@ fun MovieView(
                 )
             }
             if (state.isLoading) {
-                LoadingIndicator(visible = true)
+                LoadingIndicator(visible = loading)
             } else if (state.movieEmoji.isNotEmpty()) {
                 Text(
                     modifier = Modifier.padding(top = 50.dp),
                     text = state.movieEmoji ,
                     style = TextStyle(
-                        fontSize = 30.sp
+                        fontSize = 30.sp ,
+                        color = MaterialTheme.colors.secondary
                     )
                 )
             }
@@ -147,10 +148,7 @@ private fun makeToast(context: Context, message: String) {
 fun LoadingIndicator(visible: Boolean) {
     if (visible) {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Gray)
-                .padding(top = 50.dp)
+            modifier = Modifier.padding(top = 50.dp)
         ) {
             CircularProgressIndicator(
                 modifier = Modifier.padding(16.dp),

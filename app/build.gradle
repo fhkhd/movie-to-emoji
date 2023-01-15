@@ -4,6 +4,9 @@ plugins {
     id 'com.google.dagger.hilt.android'
     id 'kotlin-kapt'
 }
+def apikeyPropertiesFile = rootProject.file("local2.properties")
+def apikeyProperties = new Properties()
+apikeyProperties.load(new FileInputStream(apikeyPropertiesFile))
 android {
     namespace 'com.khodkari.movietoemoji'
     compileSdk 33
@@ -19,15 +22,7 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
-        def apiKeyFile = new File(rootProject.property("api_key_file"))
-        def apiKeyProperties = new Properties()
-        apiKeyProperties.load(new FileInputStream(apiKeyFile))
-        buildConfigField(
-                "String",
-                "API_KEY",
-                "\"" + apiKeyProperties.getProperty("API_KEY") + "\""
-        )
-
+        buildConfigField("String", "API_KEY", apikeyProperties['API_KEY'])
     }
 
     buildTypes {
@@ -53,7 +48,6 @@ android {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
-//        exclude 'local2.properties'
     }
 }
 

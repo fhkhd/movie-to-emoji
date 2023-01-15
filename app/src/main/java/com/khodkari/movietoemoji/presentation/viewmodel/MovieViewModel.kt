@@ -24,7 +24,10 @@ class MovieViewModel @Inject constructor(
             is MovieViewEvent.SubmitMovieTitle -> {
                 viewModelScope.launch {
                     effect.value = MovieViewEffect.ShowLoading
-                    state.value = state.value.copy(movieTitle = event.title)
+                    state.value = state.value.copy(
+                        movieTitle = event.title,
+                        isLoading = true
+                    )
                     val title = state.value.movieTitle
                     if (title.isNotEmpty()) {
                         val movie = Movie(title = event.title)
@@ -32,6 +35,11 @@ class MovieViewModel @Inject constructor(
                             when (it) {
                                 is DataState.Success -> {
                                     state.value = MovieViewState(it)
+                                    state.value.movieEmoji = it.data.emoji
+                                    state.value = state.value.copy(
+                                        movieEmoji = it.data.emoji,
+                                        isLoading = false
+                                    )
                                     effect.value =
                                         MovieViewEffect.ShowMovieEmoji(state.value.movieEmoji)
                                 }
