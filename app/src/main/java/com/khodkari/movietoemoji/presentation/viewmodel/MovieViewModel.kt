@@ -3,12 +3,13 @@ package com.khodkari.movietoemoji.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.khodkari.movietoemoji.domain.model.DataState
-import com.khodkari.movietoemoji.domain.model.Movie
 import com.khodkari.movietoemoji.domain.usecase.GetEmojiUseCase
 import com.khodkari.movietoemoji.presentation.model.MovieViewEffect
 import com.khodkari.movietoemoji.presentation.model.MovieViewEvent
 import com.khodkari.movietoemoji.presentation.model.MovieViewState
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,36 +24,42 @@ class MovieViewModel @Inject constructor(
         when (event) {
             is MovieViewEvent.SubmitMovieTitle -> {
                 viewModelScope.launch {
-                    effect.value = MovieViewEffect.ShowLoading
-                    state.value = state.value.copy(
-                        movieTitle = event.title,
-                        isLoading = true
-                    )
-                    val title = state.value.movieTitle
-                    if (title.isNotEmpty()) {
-                        val movie = Movie(title = event.title)
-                        getEmojiUseCase(movie).collectLatest {
-                            when (it) {
+                    val title = event.title
+                    if (title.isEmpty()) {
+                        effect.value = MovieViewEffect.ShowTitleEmptyError("Enter a movie name!")
+                        state.value = MovieViewState(DataState.Failure("Something was wrong!"))
+                    } else {
+                        state.update {
+                            it.copy(
+                                movieTitle = title,
+                                movieEmoji = "",
+                                isLoading = true
+                            )
+                        }
+                        getEmojiUseCase(title).collectLatest { result ->
+                            when (result) {
                                 is DataState.Success -> {
-                                    state.value = MovieViewState(it)
-                                    state.value.movieEmoji = it.data.emoji
-                                    state.value = state.value.copy(
-                                        movieEmoji = it.data.emoji,
-                                        isLoading = false
-                                    )
-                                    effect.value =
-                                        MovieViewEffect.ShowMovieEmoji(state.value.movieEmoji)
+                                    state.update {
+                                        it.copy(
+                                            movieEmoji = result.data,
+                                            isLoading = false
+                                        )
+                                    }
                                 }
                                 is DataState.Failure -> {
+                                    state.update {
+                                        it.copy(
+                                            movieEmoji = "",
+                                            isLoading = false
+                                        )
+                                    }
+
                                     effect.value =
                                         MovieViewEffect
                                             .ShowTitleConnectionError("connection failed!")
                                 }
                             }
                         }
-                    } else {
-                        effect.value = MovieViewEffect.ShowTitleEmptyError("give me a title!")
-                        state.value = MovieViewState(DataState.Failure("give me a title!"))
                     }
                 }
             }

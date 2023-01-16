@@ -14,18 +14,12 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var viewModel: MovieViewModel
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MovieToEmojiTheme{
-                MovieView(
-                    viewModel = viewModel ,
-                    context = baseContext
-                )
+                MovieView(viewModel = viewModel)
             }
-
         }
-
     }
 }

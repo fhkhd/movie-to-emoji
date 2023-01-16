@@ -3,39 +3,37 @@ package com.khodkari.movietoemoji.presentation.view
 import android.content.Context
 import android.graphics.Color.parseColor
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.khodkari.movietoemoji.R
 import com.khodkari.movietoemoji.presentation.model.MovieViewEffect
 import com.khodkari.movietoemoji.presentation.model.MovieViewEvent
 import com.khodkari.movietoemoji.presentation.viewmodel.MovieViewModel
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 
 @Composable
 fun MovieView(
-    viewModel: MovieViewModel,
-    context: Context,
+    viewModel: MovieViewModel
 ) {
     var title by remember {
         mutableStateOf("")
     }
-    val state by remember { mutableStateOf(viewModel.state.value) }
-    var loading by remember { mutableStateOf(false) }
+    val state = viewModel.state.collectAsState().value
     val coroutineScope = rememberCoroutineScope()
-    LoadingIndicator(visible = loading)
-
+    val context = LocalContext.current
 
     Image(
         painter = painterResource(R.drawable.background),
@@ -68,7 +66,7 @@ fun MovieView(
                     disabledBorderColor = MaterialTheme.colors.secondary,
                     cursorColor = MaterialTheme.colors.primaryVariant,
                     textColor = MaterialTheme.colors.primaryVariant,
-                    trailingIconColor = MaterialTheme.colors.primaryVariant,
+                    trailingIconColor = MaterialTheme.colors.primaryVariant
                 ),
                 label = {
                     Text(
@@ -100,15 +98,7 @@ fun MovieView(
                                 is MovieViewEffect.ShowTitleEmptyError -> {
                                     makeToast(context, effect.error)
                                 }
-                                is MovieViewEffect.ShowLoading -> loading = true
-                                is MovieViewEffect.HideLoading -> loading = false
-
-                                is MovieViewEffect.ShowMovieEmoji -> {
-                                    state.movieEmoji = effect.emoji
-                                }
-                                is MovieViewEffect.Idle -> {
-                                    // Handle idle state
-                                }
+                                MovieViewEffect.Idle -> {}
                             }
                         }
                     }
@@ -120,18 +110,19 @@ fun MovieView(
                 shape = RoundedCornerShape(30.dp)
             ) {
                 Text(
-                    text = "Get emoji",
+                    text = "Generate Emoji",
                     modifier = Modifier.padding(5.dp)
                 )
             }
-            if (state.isLoading) {
-                LoadingIndicator(visible = loading)
-            } else if (state.movieEmoji.isNotEmpty()) {
+
+            LoadingIndicator(visible = state.isLoading)
+
+            if (state.movieEmoji.isNotEmpty()) {
                 Text(
                     modifier = Modifier.padding(top = 50.dp),
-                    text = state.movieEmoji ,
+                    text = state.movieEmoji,
                     style = TextStyle(
-                        fontSize = 30.sp ,
+                        fontSize = 30.sp,
                         color = MaterialTheme.colors.secondary
                     )
                 )
