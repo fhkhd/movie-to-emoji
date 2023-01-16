@@ -4,7 +4,7 @@ plugins {
     id 'com.google.dagger.hilt.android'
     id 'kotlin-kapt'
 }
-def apikeyPropertiesFile = rootProject.file("local2.properties")
+def apikeyPropertiesFile = rootProject.file("local.properties")
 def apikeyProperties = new Properties()
 apikeyProperties.load(new FileInputStream(apikeyPropertiesFile))
 android {
@@ -22,7 +22,7 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
-        buildConfigField("String", "API_KEY", apikeyProperties['API_KEY'])
+        buildConfigField("String", "API_KEY", apikeyProperties['api.key'])
     }
 
     buildTypes {
