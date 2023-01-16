@@ -32,6 +32,7 @@ class MovieViewModel @Inject constructor(
                         state.update {
                             it.copy(
                                 movieTitle = title,
+                                movieEmoji = "",
                                 isLoading = true
                             )
                         }

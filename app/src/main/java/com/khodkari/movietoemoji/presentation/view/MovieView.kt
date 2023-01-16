@@ -31,7 +31,7 @@ fun MovieView(
     var title by remember {
         mutableStateOf("")
     }
-    val state by remember { mutableStateOf(viewModel.state.value) }
+    val state = viewModel.state.collectAsState().value
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
