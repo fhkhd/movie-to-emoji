@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "Movie to emoji"
+rootProject.name = "Movie to Emoji"
 include ':app'

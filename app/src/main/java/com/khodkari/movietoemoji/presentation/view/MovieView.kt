@@ -110,7 +110,7 @@ fun MovieView(
                 shape = RoundedCornerShape(30.dp)
             ) {
                 Text(
-                    text = "Get emoji",
+                    text = "Generate Emoji",
                     modifier = Modifier.padding(5.dp)
                 )
             }
