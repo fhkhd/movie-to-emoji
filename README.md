@@ -1,4 +1,4 @@
-# Movie Emoji App
+# Movie to Emoji
 
 This android application is a demonstration of the capabilities of the OpenAI API. It takes in a movie title as input and returns an emoji representation of the movie.
 
