@@ -1,5 +1,8 @@
 package com.khodkari.movietoemoji.data.api
 
+import com.khodkari.movietoemoji.domain.model.DataState
+import kotlinx.coroutines.flow.Flow
+
 interface Api {
-    suspend fun getEmojiForMovieTitle(text: String): String
+    fun getEmojiForMovieTitle(text: String): Flow<DataState<String>>
 }

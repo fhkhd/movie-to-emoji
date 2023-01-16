@@ -8,8 +8,8 @@ import javax.inject.Inject
 class MovieRepository @Inject constructor(
     private val dataSource: MovieDataSource
 ) {
-    fun getMovieEmoji(title: String): Flow<DataState<String>> {
-        return dataSource.searchForEmoji(title)
+    fun getMovieEmoji(movieName: String): Flow<DataState<String>> {
+        return dataSource.searchForEmoji(movieName)
     }
 }
 
