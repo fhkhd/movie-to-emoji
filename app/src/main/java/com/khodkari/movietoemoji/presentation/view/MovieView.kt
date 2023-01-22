@@ -5,6 +5,8 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -13,6 +15,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -20,6 +23,7 @@ import com.khodkari.movietoemoji.R
 import com.khodkari.movietoemoji.presentation.model.MovieViewEffect
 import com.khodkari.movietoemoji.presentation.model.MovieViewEvent
 import com.khodkari.movietoemoji.presentation.viewmodel.MovieViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -29,9 +33,15 @@ fun MovieView(
     var title by remember {
         mutableStateOf("")
     }
+    val isVisible by remember {
+        derivedStateOf {
+            title.isNotBlank()
+        }
+    }
     val state = viewModel.state.collectAsState().value
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+
 
     Image(
         painter = painterResource(R.drawable.background),
@@ -55,6 +65,12 @@ fun MovieView(
                     .padding(16.dp)
                     .width(220.dp),
                 singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        handleSubmit(title,viewModel,coroutineScope,context)
+                    }
+                ),
                 label = {
                     Text(
                         text = "Movie Title",
@@ -62,31 +78,19 @@ fun MovieView(
                     )
                 },
                 trailingIcon = {
-                    IconButton(onClick = { title = "" }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_close),
-                            contentDescription = "clear title"
-                        )
-                    }
+                    if (isVisible)
+                        IconButton(onClick = { title = "" }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_close),
+                                contentDescription = "clear title"
+                            )
+                        }
                 }
             )
             Button(
                 modifier = Modifier.padding(top = 50.dp),
                 onClick = {
-                    viewModel.processEvent(MovieViewEvent.SubmitMovieTitle(title))
-                    coroutineScope.launch {
-                        viewModel.effect.collect { effect ->
-                            when (effect) {
-                                is MovieViewEffect.ShowTitleConnectionError -> {
-                                    makeToast(context, "Network error: ${effect.error}")
-                                }
-                                is MovieViewEffect.ShowTitleEmptyError -> {
-                                    makeToast(context, effect.error)
-                                }
-                                MovieViewEffect.Idle -> {}
-                            }
-                        }
-                    }
+                    handleSubmit(title,viewModel,coroutineScope,context)
                 },
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = MaterialTheme.colors.secondary,
@@ -127,8 +131,29 @@ fun LoadingIndicator(visible: Boolean) {
             modifier = Modifier.padding(top = 50.dp)
         ) {
             CircularProgressIndicator(
-                modifier = Modifier.padding(16.dp))
+                modifier = Modifier.padding(16.dp)
+            )
         }
     }
 }
 
+private fun handleSubmit(
+    title: String,
+    viewModel: MovieViewModel,
+    coroutineScope: CoroutineScope,
+    context: Context) {
+    viewModel.processEvent(MovieViewEvent.SubmitMovieTitle(title))
+    coroutineScope.launch {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is MovieViewEffect.ShowTitleConnectionError -> {
+                    makeToast(context, "Network error: ${effect.error}")
+                }
+                is MovieViewEffect.ShowTitleEmptyError -> {
+                    makeToast(context, effect.error)
+                }
+                is MovieViewEffect.Idle -> {}
+            }
+        }
+    }
+}
