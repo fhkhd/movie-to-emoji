@@ -23,8 +23,6 @@ import com.khodkari.movietoemoji.R
 import com.khodkari.movietoemoji.presentation.model.MovieViewEffect
 import com.khodkari.movietoemoji.presentation.model.MovieViewEvent
 import com.khodkari.movietoemoji.presentation.viewmodel.MovieViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 @Composable
 fun MovieView(
@@ -39,9 +37,8 @@ fun MovieView(
         }
     }
     val state = viewModel.state.collectAsState().value
-    val coroutineScope = rememberCoroutineScope()
+    val effect = viewModel.effect.collectAsState().value
     val context = LocalContext.current
-
 
     Image(
         painter = painterResource(R.drawable.background),
@@ -68,7 +65,7 @@ fun MovieView(
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(
                     onDone = {
-                        handleSubmit(title,viewModel,coroutineScope,context)
+                        handleSubmit(title, viewModel)
                     }
                 ),
                 label = {
@@ -90,7 +87,7 @@ fun MovieView(
             Button(
                 modifier = Modifier.padding(top = 50.dp),
                 onClick = {
-                    handleSubmit(title,viewModel,coroutineScope,context)
+                    handleSubmit(title, viewModel)
                 },
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = MaterialTheme.colors.secondary,
@@ -118,6 +115,15 @@ fun MovieView(
             }
         }
     }
+    when (effect) {
+        is MovieViewEffect.Idle -> {}
+        is MovieViewEffect.ShowTitleConnectionError -> {
+            makeToast(context, "Network error: ${effect.error}")
+        }
+        is MovieViewEffect.ShowTitleEmptyError -> {
+            makeToast(context, effect.error)
+        }
+    }
 }
 
 private fun makeToast(context: Context, message: String) {
@@ -140,20 +146,6 @@ fun LoadingIndicator(visible: Boolean) {
 private fun handleSubmit(
     title: String,
     viewModel: MovieViewModel,
-    coroutineScope: CoroutineScope,
-    context: Context) {
+) {
     viewModel.processEvent(MovieViewEvent.SubmitMovieTitle(title))
-    coroutineScope.launch {
-        viewModel.effect.collect { effect ->
-            when (effect) {
-                is MovieViewEffect.ShowTitleConnectionError -> {
-                    makeToast(context, "Network error: ${effect.error}")
-                }
-                is MovieViewEffect.ShowTitleEmptyError -> {
-                    makeToast(context, effect.error)
-                }
-                is MovieViewEffect.Idle -> {}
-            }
-        }
-    }
 }
