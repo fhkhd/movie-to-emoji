@@ -28,36 +28,31 @@ class MovieViewModel @Inject constructor(
                     if (title.isEmpty()) {
                         effect.value = MovieViewEffect.ShowTitleEmptyError("Enter a movie name!")
                         state.value = MovieViewState(DataState.Failure("Something was wrong!"))
-                    } else {
-                        state.update {
-                            it.copy(
-                                movieTitle = title,
-                                movieEmoji = "",
-                                isLoading = true
-                            )
-                        }
-                        getEmojiUseCase(title).collectLatest { result ->
-                            when (result) {
-                                is DataState.Success -> {
-                                    state.update {
-                                        it.copy(
-                                            movieEmoji = result.data,
-                                            isLoading = false
-                                        )
-                                    }
+                        return@launch
+                    }
+                    effect.value = MovieViewEffect.Idle
+                    state.update {
+                        it.copy(
+                            movieTitle = title, movieEmoji = "", isLoading = true
+                        )
+                    }
+                    getEmojiUseCase(title).collectLatest { result ->
+                        when (result) {
+                            is DataState.Success -> {
+                                state.update {
+                                    it.copy(
+                                        movieEmoji = result.data, isLoading = false
+                                    )
                                 }
-                                is DataState.Failure -> {
-                                    state.update {
-                                        it.copy(
-                                            movieEmoji = "",
-                                            isLoading = false
-                                        )
-                                    }
-
-                                    effect.value =
-                                        MovieViewEffect
-                                            .ShowTitleConnectionError("connection failed!")
+                            }
+                            is DataState.Failure -> {
+                                state.update {
+                                    it.copy(
+                                        movieEmoji = "", isLoading = false
+                                    )
                                 }
+                                effect.value =
+                                    MovieViewEffect.ShowTitleConnectionError("connection failed!")
                             }
                         }
                     }
